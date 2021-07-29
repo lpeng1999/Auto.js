@@ -5,7 +5,7 @@ getGold()
 function getGold() {
 	var count = 0
 	toastLog('开始快手刷金币')
- 
+
 	while (count < findGoldCount().total - 1) {
 		count = findGoldCount().count
 		toastLog('已观看次数：' + count)
@@ -24,10 +24,11 @@ function getGold() {
 		}
 
 		if (
-			text('资讯报名').findOne(10) ||
-			textStartsWith('浏览详情页').findOne(10)
+			textStartsWith('浏览详情页').findOne(10) ||
+			id('com.kuaishou.nebula:id/video_end_action_button').findOne(10)
 		) {
-			clickUIObj(text('资讯报名').findOne(10))
+			back()
+			clickUIObj(text('放弃奖励').findOne(10))
 		}
 
 		var second = (findGoldSecond() - 1) * 1000
@@ -37,28 +38,32 @@ function getGold() {
 		console.time('start')
 
 		// 广告倒计时
-		var close = false
-		while (!close) {
-			if (textContains('s后可领取奖励').findOne(10)) {
-				log('倒计时中')
-				close = false
-				sleep(1000)
-			} else if (
-				textContains('领取成功').findOne(10) ||
-				id('com.kuaishou.nebula:id/video_close_icon').findOne(10)
-			) {
-				log('关闭视频')
-				close = true
-			}
-		}
+		counting()
 
 		console.timeEnd('start')
-		toastLog('观看视频结束')
 		back()
 	}
 
 	toastLog('完成了快手刷金币，退出')
 	exit()
+}
+
+// 广告倒计时
+function counting() {
+	var close = false
+	while (!close) {
+		if (textContains('s后可领取奖励').findOne(10)) {
+			close = false
+			log('倒计时中')
+			sleep(1000)
+		} else if (
+			id('com.kuaishou.nebula:id/video_close_icon').findOne(10) ||
+			textContains('领取成功').findOne(10)
+		) {
+			close = true
+			log('关闭视频')
+		}
+	}
 }
 
 /**
