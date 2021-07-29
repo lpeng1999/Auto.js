@@ -21,20 +21,10 @@ function getVideo() {
 
 		console.time('start')
 
-		var close = false
-		while (!close) {
-			if (id('award_count_down_text').findOne(10)) {
-				log('倒计时中')
-				close = false
-				sleep(1000)
-			} else {
-				log('关闭视频')
-				close = true
-			}
-		}
+		// 直播倒计时
+		counting()
 
 		console.timeEnd('start')
-		toastLog('观看直播结束')
 
 		// 切换视频
 		var w = device.width
@@ -44,7 +34,9 @@ function getVideo() {
 		sleep(1000)
 
 		while (!id('award_count_down_text').findOne(10)) {
-			if (count >= 9) break
+			if (count >= 9) {
+				break
+			}
 			swipe(w / 3, (h / 4) * 3, (w / 3) * 2, h / 4, 300)
 			swipe(w / 3, (h / 4) * 3, (w / 3) * 2, h / 4, 300)
 			sleep(1000)
@@ -58,6 +50,21 @@ function getVideo() {
 	text('退出').waitFor()
 	clickUIObj(text('退出').findOne(10))
 	exit()
+}
+
+// 直播倒计时
+function counting() {
+	var close = false
+	while (!close) {
+		if (id('award_count_down_text').findOne(10)) {
+			close = false
+			log('倒计时中')
+			sleep(1000)
+		} else {
+			close = true
+			log('关闭视频')
+		}
+	}
 }
 
 /**
