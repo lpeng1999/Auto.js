@@ -7,39 +7,37 @@ function getVideo() {
 
 	var count = findVideoCount().count
 	var total = findVideoCount().total
+	var w = device.width
+	var h = device.height
 
-	textStartsWith('看直播').waitFor()
-	clickUIObj(textStartsWith('看直播').findOne(10))
+	textContains('看直播').waitFor()
+	clickUIObj(textContains('看直播').findOne(10).parent())
 
 	while (count < total) {
+		log('--------------- ' + count + ' ---------------')
 		toastLog('已观看次数：' + count)
+		sleep(4000)
 
-		id('award_count_down_text').waitFor()
-		var second = (findVideoSecond() - 2) * 1000
-		log(second)
-		sleep(second)
-
-		console.time('start')
+		if (id('live_red_packet_container_close_view').findOne(10)) {
+			clickUIObj(id('live_red_packet_container_close_view').findOne(10))
+		}
 
 		// 直播倒计时
-		counting()
+		videoCounting()
 
-		console.timeEnd('start')
+		if (count >= 9) {
+			break
+		}
 
 		// 切换视频
-		var w = device.width
-		var h = device.height
 		swipe(w / 3, (h / 4) * 3, (w / 3) * 2, h / 4, 300)
 		swipe(w / 3, (h / 4) * 3, (w / 3) * 2, h / 4, 300)
-		sleep(1000)
+		sleep(1300)
 
 		while (!id('award_count_down_text').findOne(10)) {
-			if (count >= 9) {
-				break
-			}
 			swipe(w / 3, (h / 4) * 3, (w / 3) * 2, h / 4, 300)
 			swipe(w / 3, (h / 4) * 3, (w / 3) * 2, h / 4, 300)
-			sleep(1000)
+			sleep(1300)
 		}
 		count++
 	}
@@ -47,15 +45,24 @@ function getVideo() {
 	toastLog('完成了快手刷直播，退出')
 
 	back()
-	text('退出').waitFor()
-	clickUIObj(text('退出').findOne(10))
+	textContains('退出').waitFor()
+	clickUIObj(textContains('退出').findOne(10))
 	exit()
 }
 
 // 直播倒计时
 function counting() {
+	// id('award_count_down_text').waitFor()
+	// var second = (findVideoSecond() - 2) * 1000
+	// log(second)
+
+	sleep(53000)
+
+	console.time('start')
+
 	var close = false
 	while (!close) {
+		// id('award_count_down_text').findOne(10)
 		if (id('award_count_down_text').findOne(10)) {
 			close = false
 			log('倒计时中')
@@ -65,25 +72,23 @@ function counting() {
 			log('关闭视频')
 		}
 	}
+
+	console.timeEnd('start')
 }
 
 /**
  * @description: 获取直播观看总次数和已观看次数
  * @param {*}
- * @return {Number}  total总次数 count已观看次数
+ * @return {Object}  total总次数 count已观看次数
  */
 function findVideoCount() {
-	textStartsWith('观看精彩直播').waitFor()
-	var text = textStartsWith('观看精彩直播').findOne(10).text()
-	var start = text.lastIndexOf('成')
+	textContains('直播').waitFor()
+	var text = textContains('直播').findOne(10).parent().child(3).text()
 	var end = text.indexOf('/')
 
-	var total = Number(text.slice(end + 1))
-	var count = Number(text.slice(start + 1, end))
-
 	return {
-		total: total,
-		count: count,
+		total: Number(text.slice(end + 1)),
+		count: Number(text.slice(end - 2, end)),
 	}
 }
 
@@ -97,11 +102,7 @@ function findVideoSecond() {
 	var text = id('award_count_down_text').findOne(10).text()
 	var start = text.indexOf(':')
 
-	var minutes = Number(text.slice(0, start))
-	var seconds = Number(text.slice(start + 1))
-	var second = minutes * 60 + seconds
-
-	return second
+	return Number(text.slice(0, start)) * 60 + Number(text.slice(start + 1))
 }
 
 /**
